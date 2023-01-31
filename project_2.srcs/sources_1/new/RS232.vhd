@@ -43,17 +43,15 @@ entity RS232 is
          clk        : in std_logic;
          rst        : in std_logic;
          led        : out std_logic_vector(0 to 15);
-         R : out std_logic_vector(3 downto 0);
-         G : out std_logic_vector(3 downto 0);
-         B : out std_logic_vector(3 downto 0));
+         RGB : out std_logic_vector(11 downto 0));
 end RS232;
 
 architecture Behavioral of RS232 is
 
     signal data_buf     : unsigned(7 downto 0) := (others => '0'); 
     signal tel          : integer range 0 to 8; 
-    signal data32       : std_logic_vector(0 to 31); 
-   type t_array is array (0 to 31) of std_logic;
+    signal data32       : std_logic_vector(0 to 23); 
+   type t_array is array (0 to 23) of std_logic;
    signal array_mux : t_array;
 begin
 
@@ -62,24 +60,22 @@ HSYNC => HSYNC,
 VSYNC => VSYNC, 
 clk => clk, 
 rst => rst, 
-R => R, 
-G => G, 
-B => B,
+RGB => RGB,
 rsbuf => data32);
 
 rs232:process(clockin)
 
-variable tel32        : integer range 0 to 33;
-variable datashifter  : std_logic_vector  (0 to 31);
+variable tel32        : integer range 0 to 25;
+variable datashifter  : std_logic_vector  (0 to 23);
 
 begin
 
 if  rising_edge(clockin)then
-    if (tel32 < 32) then
+    if (tel32 < 24) then
         datashifter(tel32) := data_in;   
         tel32 := tel32 +1;
         
-        if (tel32 > 31) then
+        if (tel32 > 23) then
             data32 <= datashifter;
             tel32 := 0;
             datashifter := (others => '0'); 
