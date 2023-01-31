@@ -80,7 +80,7 @@ architecture Behavioral of VGAdriver is
     type screenbuf is array (0 to 639, 0 to 479) of std_logic_vector(11 downto 0); -- all pixels met kleur
     type sprite is array (0 to 31, 0 to 31) of std_logic_vector(11 downto 0); -- vector 4 element
     signal background  : screenbuf;
-    signal screen  : screenbuf;
+    --signal screen  : screenbuf;
     signal toets  : sprite := (
     ("111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111"),
     ("111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111","111111111111"),
@@ -117,43 +117,43 @@ architecture Behavioral of VGAdriver is
 
 begin
 
-startup: process(x,y)
-begin
---    for y2 in 0 to 479 loop
---        for x2 in 0 to 639 loop
-            if initialstartup = 0 then
+--startup: process(x,y)
+--begin
+----    for y2 in 0 to 479 loop
+----        for x2 in 0 to 639 loop
+--            if initialstartup = 0 then
                 
-                background(x,y) <= "111100000000";
-                if y > 350 and y < 410 then
-                   background(x,y) <= "000000001111";
-                end if;
-                if x > 146 and x < 174 then 
-                   background(x,y) <= "111111111111";
+--                background(x,y) <= "111100000000";
+--                if y > 350 and y < 410 then
+--                   background(x,y) <= "000000001111";
+--                end if;
+--                if x > 146 and x < 174 then 
+--                   background(x,y) <= "111111111111";
                    
-                elsif x > 306 and x < 334 then 
-                   background(x,y) <= "111111111111";
+--                elsif x > 306 and x < 334 then 
+--                   background(x,y) <= "111111111111";
                     
-                elsif x > 466 and x < 494 then
-                   background(x,y) <= "111111111111";
+--                elsif x > 466 and x < 494 then
+--                   background(x,y) <= "111111111111";
                   
-                end if;
-                if y = 480 then initialstartup <= 1; end if;
-            end if;
-            
-            
-            
---            if y > 50 and y < 82 and x > 100 and x < 132 then 
---                background(x,y) <= toets((x-101),(y-51));
+--                end if;
+--                if y = 480 then initialstartup <= 1; end if;
 --            end if;
+            
+            
+            
+----            if y > 50 and y < 82 and x > 100 and x < 132 then 
+----                background(x,y) <= toets((x-101),(y-51));
+----            end if;
                
                
                
---        end loop;
---    end loop;
+----        end loop;
+----    end loop;
     
  
-    --wait;
-end process;
+--    --wait;
+--end process;
 
 clk_div:process(clk, tel1)
 begin
@@ -281,39 +281,47 @@ bin2 <= to_integer(unsigned(rsbuf_t (8 to 15)));
 bin3 <= to_integer(unsigned(rsbuf_t (16 to 23)));
 
 xy_counter:process(clk)
+    variable tempx : integer range 0 to 640;
+    variable tempy : integer range 0 to 640;
 begin
 if rising_edge(clk) then
-    x <= x + 1;
+    tempx := x + 1;
 end if;
-if (x = 640) then
-    y <= y + 1;
-    x <= 0;
+if (tempx = 640) then
+    tempy := y + 1;
+    tempx := 0;
 end if;
-if (y=480) then
-    y <= 0;
+if (tempy=480) then
+    tempy := 0;
 end if;
-
+y <= tempy;
+x <= tempx;
 
 end process xy_counter;
 
-    sprite_set:process (bin1, bin2, x, y)
-    begin
-        if (x<bin2 and x> bin2 + 32) then
-            if (y<bin1 and y>bin1 + 32) then 
-                background(x,y) <= toets((x-bin2),(y-bin1));
-            end if;
-        end if;
-    end process sprite_set;    
+--    sprite_set:process (clk,bin1, bin2, x, y)
+--    begin
+--        if (x<bin2 and x> bin2 + 32) then
+--            if (y<bin1 and y>bin1 + 32) then 
+--                background(x,y) <= toets((x-bin2),(y-bin1));
+--            end if;
+--        end if;
+--    end process sprite_set;    
 
 draw:process(klok25, rst, hPos, vPos, videoOn)
 begin
 if (rst = '1')then
- RGB <= "000000000000";
- elsif(klok25'event and klok25 = '1')then
-     if(videoOn <= '1') then
-
-        RGB <= background(Hpos,Vpos);
+ RGB <= "000011110000";
+ elsif(rising_edge(klok25))then
+     if(videoOn = '1') then
      
+        if (hPos<bin2 and hpos> bin2 + 32) then
+            if (vPos<bin1 and vPos>bin1 + 32) then 
+                RGB <= "000000001111";--toets((hPos-bin2),(vPos-bin1));
+            end if;
+        else RGB <= "111100000000";
+        end if;
+     else RGB <= "100010001000";
     end if;
 end if;
 end process;
