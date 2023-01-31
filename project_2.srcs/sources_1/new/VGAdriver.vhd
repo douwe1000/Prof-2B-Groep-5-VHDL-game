@@ -66,7 +66,7 @@ architecture Behavioral of VGAdriver is
     constant VBP : integer := 33; --linker
     
     
-    signal bin1, bin2, bin3, bin4: integer range 0 to 480;
+    signal bin1, bin2, bin3, bin4: integer range 0 to 1024;
     signal rsbuf_nep : std_logic_vector (0 to 23) := "111111110000001111110000";
     
     
@@ -276,8 +276,8 @@ rsbuf_t(18) <= rsbuf(21);
 rsbuf_t(17) <= rsbuf(22);
 rsbuf_t(16) <= rsbuf(23);
 
-bin1 <= to_integer(unsigned(rsbuf_t (0 to 7)));
-bin2 <= to_integer(unsigned(rsbuf_t (8 to 15)));
+bin1 <= ((to_integer(unsigned(rsbuf_t (0 to 7))))*3);
+bin2 <= ((to_integer(unsigned(rsbuf_t (8 to 15))))*3);
 bin3 <= to_integer(unsigned(rsbuf_t (16 to 23)));
 
 xy_counter:process(clk)
@@ -309,20 +309,48 @@ end process xy_counter;
 --    end process sprite_set;    
 
 draw:process(klok25, rst, hPos, vPos, videoOn)
+variable tempRGB : std_logic_vector(11 downto 0);
 begin
 if (rst = '1')then
- RGB <= "000011110000";
+ RGB <= "000000000000";
  elsif(rising_edge(klok25))then
-     if(videoOn = '1') then
-     
-        if (hPos<bin2 and hpos> bin2 + 32) then
-            if (vPos<bin1 and vPos>bin1 + 32) then 
-                RGB <= "000000001111";--toets((hPos-bin2),(vPos-bin1));
-            end if;
-        else RGB <= "111100000000";
+         if(videoOn = '1') then
+         
+         
+                if rsbuf_t (16) = '1' or rsbuf_t (18) = '1' or rsbuf_t (20) = '1' or rsbuf_t (22) = '1' then
+                 tempRGB := "111100000000";
+                 elsif rsbuf_t (17) = '1' or rsbuf_t (19) = '1' or rsbuf_t (21) = '1' or rsbuf_t (23) = '1' then
+                 tempRGB := "000011110000";
+                 else tempRGB := "111111111111";
+                 end if; 
+                 
+                if vPos > 350 and vPos < 410 then
+                   tempRGB := "000000001111";
+                end if;
+                if hPos > 146 and hPos < 174 then 
+                   tempRGB := "111111111111";
+                   
+                elsif hPos > 306 and hPos < 334 then 
+                   tempRGB := "111111111111";
+                    
+                elsif hPos > 466 and hPos < 494 then
+                   tempRGB := "111111111111";
+                  
+                end if;
+           
+         
+         
+         
+                if (hPos>bin1 and hpos< bin1 + 32) then
+                        if (vPos>bin2 and vPos<bin2 + 32) then 
+                            tempRGB := toets((hPos-bin1),(vPos-bin2));
+                        else tempRGB := "111100000000";
+                        end if;
+                --else RGB <= "111100000000";
+                end if;
+                RGB <= tempRGB;
+        --else RGB <= "000000000000";        
         end if;
-     else RGB <= "100010001000";
-    end if;
 end if;
 end process;
 

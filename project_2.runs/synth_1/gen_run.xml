@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1675173186" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/RS232.dcp">
+<GenRun Id="synth_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1675178356" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/RS232.dcp">
   <File Type="PA-TCL" Name="RS232.tcl"/>
   <File Type="RDS-PROPCONSTRS" Name="RS232_drc_synth.rpt"/>
   <File Type="REPORTS-TCL" Name="RS232_reports.tcl"/>
@@ -58,7 +58,9 @@
     </Config>
   </FileSet>
   <Strategy Version="1" Minor="2">
-    <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
+    <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022">
+      <Desc>Vivado Synthesis Defaults</Desc>
+    </StratHandle>
     <Step Id="synth_design"/>
   </Strategy>
 </GenRun>
